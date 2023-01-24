@@ -117,6 +117,14 @@ r = requests.get(
     )
 prs = Presentation(io.BytesIO(r.content))
 
+slide = prs.slides.add_slide(prs.slide_layouts[10])
+table_placeholder = slide.shapes[0]
+shape = table_placeholder.insert_table(rows=3, cols=4)
+table = shape.table
+cell = table.cell(0, 0)
+cell.text = 'Unladen Swallow'
+
+prs.save('test.pptx')
 
 
 st.download_button(
