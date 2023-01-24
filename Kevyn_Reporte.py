@@ -18,6 +18,8 @@ import requests
 # Funcion para generar archivo pptx
 def generate_pptx(prs):
     print("-------")
+    for slide in prs.slides:
+        print(slide)
     binary_output = BytesIO()
     prs.save(binary_output)
     return binary_output.getvalue()
