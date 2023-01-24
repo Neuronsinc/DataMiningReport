@@ -35,4 +35,3 @@ st.download_button(
     file_name="efectividad_" + date.today().strftime("%d_%m_%Y") + ".pptx",
     mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
 )
-
