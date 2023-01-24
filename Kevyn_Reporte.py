@@ -107,8 +107,6 @@ def generate_pptx(prs):
         encabezados = keyword_df.iloc[0]
 
         row, col = keyword_df.shape
-        print(row)
-        print(col)
 
         shapes = prs.slides[8].shapes
         left = Inches(1.0)
@@ -123,11 +121,12 @@ def generate_pptx(prs):
             table.columns[i].width = Inches(1.0)
             table.cell(0, i).text = encabezados[i]
 
-        for i in range(col):
+        for i in range(col):            
             for j in range(row):
                 if j + 1 < row :
-                    table.cell(j + 1, i).text = 'Baz'
+                    table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
 
+#row col
         # set column widths
         # table.columns[0].width = Inches(1.0)
         # table.columns[1].width = Inches(1.0)
