@@ -2,6 +2,7 @@ from cgitb import text
 import datetime
 from io import BytesIO
 import io
+from pptx.util import Inches
 import math
 import csv
 import pandas
@@ -17,11 +18,15 @@ import requests
 from pptx.chart.data import CategoryChartData
 
 
+def iter_cells(table):
+    for row in table.rows:
+        for cell in row.cells:
+            yield cell
+
 # Funcion para generar archivo pptx
 def generate_pptx(prs):
     print("-------")
     for shape in prs.slides[6].shapes:
-        print(shape.shape_type)
         if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text == 'title':
             shape.text = ""
             frame2 = shape.text_frame.paragraphs[0]
@@ -95,6 +100,42 @@ def generate_pptx(prs):
                     chart_data.categories = interes_categories
                     chart_data.add_series('Intereses', interes_series)       
                     shape.chart.replace_data(chart_data)
+    for shape in prs.slides[8].shapes:
+        print(shape.shape_type)
+    if keyword_file is not None:
+        keyword_df = pandas.read_csv(keyword_file, header=None)
+        
+        shapes = prs.slides[8].shapes
+        rows = cols = 5
+        left = Inches(1.0)
+        top = Inches(1.0)
+        width = Inches(1.0)
+        height = Inches(1.0)
+
+        table = shapes.add_table(rows, cols, left, top, width, height).table
+
+        # set column widths
+        table.columns[0].width = Inches(1.0)
+        table.columns[1].width = Inches(1.0)
+        table.columns[2].width = Inches(1.0)
+        table.columns[3].width = Inches(1.0)
+        table.columns[4].width = Inches(1.0)
+
+
+        # write column headings
+        table.cell(0, 0).text = 'Keyword'
+        table.cell(0, 1).text = 'Búsqueda Promedio'
+        table.cell(0, 2).text = 'Impresiones'
+        table.cell(0, 3).text = 'Competencia'
+        table.cell(0, 4).text = 'CPC Promedio'
+
+        # write body cells
+        table.cell(1, 0).text = 'Baz'
+        table.cell(1, 1).text = 'Qux'
+        for cell in iter_cells(table):
+            for paragraph in cell.text_frame.paragraphs:
+                for run in paragraph.runs:
+                    run.font.size = Pt(1)
     binary_output = BytesIO()
     prs.save(binary_output)
     return binary_output.getvalue()
@@ -111,20 +152,14 @@ etapas = st.file_uploader('CSV Etapas')
 intereses = st.file_uploader('CSV Intereses')
 generos = st.file_uploader('CSV Generos')
 
+keyword_file = st.file_uploader('Google Ads')
+
 
 r = requests.get(
         "https://github.com/Neuronsinc/DataMiningReport/blob/main/template.pptx?raw=true"
     )
 prs = Presentation(io.BytesIO(r.content))
 
-slide = prs.slides.add_slide(prs.slide_layouts[10])
-table_placeholder = slide.shapes[0]
-shape = table_placeholder.insert_table(rows=3, cols=4)
-table = shape.table
-cell = table.cell(0, 0)
-cell.text = 'Unladen Swallow'
-
-prs.save('test.pptx')
 
 
 st.download_button(
