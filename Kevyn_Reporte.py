@@ -12,14 +12,23 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN
 from pptx.util import Pt
 import requests
-
+from pptx.chart.data import CategoryChartData
 
 
 # Funcion para generar archivo pptx
 def generate_pptx(prs):
     print("-------")
-    for slide in prs.slides:
-        print(slide)
+    for shape in prs.slides[6].shapes:
+        print(shape.shape_type)
+        if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text == 'title':
+            shape.text = ""
+            frame2 = shape.text_frame.paragraphs[0]
+            frame2.alignment = PP_ALIGN.CENTER
+            run2 = frame2.add_run()
+            run2.text = name
+     
+
+            
     binary_output = BytesIO()
     prs.save(binary_output)
     return binary_output.getvalue()
