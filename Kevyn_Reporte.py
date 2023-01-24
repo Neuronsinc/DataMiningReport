@@ -14,8 +14,13 @@ from pptx.util import Pt
 import requests
 
 
-def generate_pptx(pptx):
-    print('------')
+
+# Funcion para generar archivo pptx
+def generate_pptx(prs):
+    print("-------")
+    binary_output = BytesIO()
+    prs.save(binary_output)
+    return binary_output.getvalue()
 
 
 st.set_page_config(layout="wide")
@@ -25,14 +30,16 @@ name = st.text_input(label="Nombre del proyecto", key='name')
 
 
 
-prs = Presentation('template.pptx')
+r = requests.get(
+        "https://github.com/Neuronsinc/DataMiningReport/blob/main/template.pptx?raw=true"
+    )
+prs = Presentation(io.BytesIO(r.content))
 
 
-            
+
 st.download_button(
     label="Descargar pptx",
     data=generate_pptx(prs),
     file_name="efectividad_" + date.today().strftime("%d_%m_%Y") + ".pptx",
     mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
 )
-
