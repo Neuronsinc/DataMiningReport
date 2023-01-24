@@ -116,6 +116,7 @@ def generate_pptx(prs):
 
 
         table = shapes.add_table(row, col, left, top, width, height).table
+        promedio = 0.0
 
         for i in range(col):
             table.columns[i].width = Inches(1.0)
@@ -125,7 +126,11 @@ def generate_pptx(prs):
             for j in range(row):
                 if j + 1 < row :
                     table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
+                    if i == 1 :
+                        promedio += float(keyword_df.iloc[j + 1, i])
 
+        print('promedio')
+        print(promedio)
 #row col
         # set column widths
         # table.columns[0].width = Inches(1.0)
