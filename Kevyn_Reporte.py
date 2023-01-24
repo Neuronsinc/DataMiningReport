@@ -104,38 +104,52 @@ def generate_pptx(prs):
         print(shape.shape_type)
     if keyword_file is not None:
         keyword_df = pandas.read_csv(keyword_file, header=None)
-        
+        encabezados = keyword_df.iloc[0]
+
+        row, col = keyword_df.shape
+        print(row)
+        print(col)
+
         shapes = prs.slides[8].shapes
-        rows = cols = 5
         left = Inches(1.0)
         top = Inches(1.0)
         width = Inches(1.0)
         height = Inches(1.0)
 
-        table = shapes.add_table(rows, cols, left, top, width, height).table
+
+        table = shapes.add_table(row, col, left, top, width, height).table
+
+        for i in range(col):
+            table.columns[i].width = Inches(1.0)
+            table.cell(0, i).text = encabezados[i]
+
+        for i in range(col):
+            for j in range(row):
+                if j + 1 < row :
+                    table.cell(j + 1, i).text = 'Baz'
 
         # set column widths
-        table.columns[0].width = Inches(1.0)
-        table.columns[1].width = Inches(1.0)
-        table.columns[2].width = Inches(1.0)
-        table.columns[3].width = Inches(1.0)
-        table.columns[4].width = Inches(1.0)
+        # table.columns[0].width = Inches(1.0)
+        # table.columns[1].width = Inches(1.0)
+        # table.columns[2].width = Inches(1.0)
+        # table.columns[3].width = Inches(1.0)
+        # table.columns[4].width = Inches(1.0)
 
 
         # write column headings
-        table.cell(0, 0).text = 'Keyword'
-        table.cell(0, 1).text = 'Búsqueda Promedio'
-        table.cell(0, 2).text = 'Impresiones'
-        table.cell(0, 3).text = 'Competencia'
-        table.cell(0, 4).text = 'CPC Promedio'
+        # table.cell(0, 0).text = 'Keyword'
+        # table.cell(0, 1).text = 'Búsqueda Promedio'
+        # table.cell(0, 2).text = 'Impresiones'
+        # table.cell(0, 3).text = 'Competencia'
+        # table.cell(0, 4).text = 'CPC Promedio'
 
         # write body cells
-        table.cell(1, 0).text = 'Baz'
-        table.cell(1, 1).text = 'Qux'
-        for cell in iter_cells(table):
-            for paragraph in cell.text_frame.paragraphs:
-                for run in paragraph.runs:
-                    run.font.size = Pt(1)
+        # table.cell(1, 0).text = 'Baz'
+        # table.cell(1, 1).text = 'Qux'
+        # for cell in iter_cells(table):
+        #     for paragraph in cell.text_frame.paragraphs:
+        #         for run in paragraph.runs:
+        #             run.font.size = Pt(1)
     binary_output = BytesIO()
     prs.save(binary_output)
     return binary_output.getvalue()
