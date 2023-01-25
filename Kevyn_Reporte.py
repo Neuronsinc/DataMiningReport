@@ -2,6 +2,7 @@ from cgitb import text
 import datetime
 from io import BytesIO
 import io
+import os
 from pptx.util import Inches
 import math
 import csv
@@ -127,12 +128,14 @@ def generate_pptx(prs):
                     chart_data.categories = interes_categories
                     chart_data.add_series("Intereses", interes_series)
                     shape.chart.replace_data(chart_data)
-    for shape in prs.slides[8].shapes:
-        print(shape.shape_type)
+    # for shape in prs.slides[8].shapes:
+    #     print(shape.shape_type)
     k = 0.1
+    dataTableName = []
+    dataTableAverage = []
     for file in keyword_files:
         if keyword_files is not None:
-            keyword_df = pd.read_csv(file)
+            keyword_df = pd.read_csv(file)           
             row, col = keyword_df.shape
             promedio = 0.0
 
@@ -150,10 +153,13 @@ def generate_pptx(prs):
                 for j in range(row):
                     if j == 0 or j == 1 or j == 2:
                         colors[j] = "rgb(252, 248, 3)"
-                    if j + 1 < row:
+                    # if j + 1 < row:
                         # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i])
-                        if i == 1:
-                            promedio += float(keyword_df.iloc[j + 1, i])
+                    if i == 1:
+                        promedio += float(keyword_df.iloc[j, i])
+
+            dataTableName.append(os.path.splitext(file.name)[0])
+            dataTableAverage.append(str(round((promedio/row), 2)))
             data = {}
             for col_name in keyword_df.columns:
                 data[col_name] = keyword_df[col_name].to_numpy()
@@ -199,18 +205,36 @@ def generate_pptx(prs):
             # for i in range(col):
             #     table.columns[i].width = Inches(1.0)
             #     table.cell(0, i).text = encabezados[i]
-            print(col)
-            for i in range(col):
-                for j in range(row):
-                    if j + 1 < row:
-                        # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i])
-                        if i == 1:
-                            promedio += float(keyword_df.iloc[j + 1, i])
+            # print(col)
+            # for i in range(col):
+            #     for j in range(row):
+            #         if j + 1 < row:
+            #             # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i])
+            #             if i == 1:
+            #                 promedio += float(keyword_df.iloc[j + 1, i])
 
-            print(promedio)
+            # print(promedio)
 
             shapes.add_picture("plot1.png", Inches(k), Inches(1))
-            k += 6
+            k += 6  
+
+    if len(keyword_files) > 0 :
+        posInicio = 1
+        shapes2 = prs.slides[7].shapes
+        left = Inches(1.0)
+        top = Inches(1.0)
+        width = Inches(5.0)
+        height = Inches(2.0)
+        table2 = shapes2.add_table(len(keyword_files)+1, 2, left, top, width, height).table
+        table2.columns[0].width = Inches(1.0)
+        table2.columns[1].width = Inches(1.0)
+        table2.cell(0, 0).text = 'Categoria'
+        table2.cell(0, 1).text = 'Busqueda mensual promedio'
+        for i in range(len(keyword_files)):
+            table2.cell(posInicio,0).text = dataTableName[i]
+            table2.cell(posInicio,1).text = dataTableAverage[i]
+            posInicio += 1
+
     # row col
     # set column widths
     # table.columns[0].width = Inches(1.0)
@@ -233,6 +257,10 @@ def generate_pptx(prs):
     #     for paragraph in cell.text_frame.paragraphs:
     #         for run in paragraph.runs:
     #             run.font.size = Pt(1)
+
+    
+
+
     binary_output = BytesIO()
     prs.save(binary_output)
     return binary_output.getvalue()
