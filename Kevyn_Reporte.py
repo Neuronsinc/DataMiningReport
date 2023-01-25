@@ -19,6 +19,7 @@ from pptx.chart.data import CategoryChartData
 import dataframe_image as dfi
 import numpy as np
 import df2img
+import plotly.graph_objects as go
 
 def iter_cells(table):
     for row in table.rows:
@@ -26,12 +27,7 @@ def iter_cells(table):
             yield cell
 
 def color_negative_red(value):
- 
-
-
     color = 'green'
-
-
     return 'color: %s' % color
 
 
@@ -40,6 +36,8 @@ def highlight(s):
         return ['background-color: yellow'] * len(s)
     else:
         return ['background-color: red'] * len(s)
+
+
 
 # Funcion para generar archivo pptx
 def generate_pptx(prs):
@@ -120,22 +118,61 @@ def generate_pptx(prs):
                     shape.chart.replace_data(chart_data)
     for shape in prs.slides[8].shapes:
         print(shape.shape_type)
+
     if keyword_file is not None:
         keyword_df = pd.read_csv(keyword_file)
+        col_formats = {'Competition': '.2%'}
+        plot_df = keyword_df.reset_index()
+        font_colours_df = pd.DataFrame(
+            'black',  # Set default font colour
+            index=plot_df.index, columns=plot_df.columns
+        )
+                
+        colors = ['rgb(239, 243, 255)', 'rgb(189, 215, 231)', 'rgb(107, 174, 214)']
+        data = {'Year' : [2010, 2011, 2012, 2013, 2014], 'Color' : colors}
+        df = pd.DataFrame(data)
 
-        fig = df2img.plot_dataframe(
-    keyword_df,
-     tbl_cells=dict(
-        align="right",
-        fill_color="green",
-        font_color="yellow",
-    ),
-    fig_size=(500, 140),
-)
-        df2img.save_dataframe(fig=fig, filename="plot1.png")
+        fig = go.Figure(data=[go.Table(
+                                header=dict(
+                                values=["Color", "<b>YEAR</b>"],
+                                line_color='white', fill_color='white',
+                                align='center', font=dict(color='black', size=12)
+                            ),
+                            cells=dict(
+                                values=[df.Color, df.Year],
+                                line_color=[df.Color]
+                                , fill_color=[df.Color]
+                                , align='center'
+                                , font=dict(color='black', size=11)
+                            ))
+                        ])
+        #fig.show()  
+        print("figura")
+        st.plotly_chart(fig)
+        fig.write_image('pruebita.png')
+        # fig = df2img.plot_dataframe(
+        #                         keyword_df,
+        #                         print_index=False,  # Hide new index (old index now column)
+        #                         tbl_cells={
+        #                                 'format': [
+        #                                     # Conditionally build a complete list of foramt strings
+        #                                     #  Based on col_formats dict and columns
+        #                                     col_formats[c] if c in col_formats else None
+        #                                     for c in plot_df.columns
+        #                                 ],
+        #                                 'font': {
+        #                                     # Needs Transposed for colours to go to the correct cells
+        #                                     'color': font_colours_df.T
+        #                                 }
+        #                             },
+        #                         row_fill_color=["#ffffff", "#aaaaaa", "#aaaaaa", "#ffffff", "#d7e4d6", "#a3a4d6"],
+        #                         fig_size=(500, 500),                                    
+        #                     )
+                            
+        # df2img.save_dataframe(fig=fig, filename="plot1.png")        
 
 
-        
+
 
         row, col = keyword_df.shape
 
