@@ -121,25 +121,37 @@ def generate_pptx(prs):
 
     if keyword_file is not None:
         keyword_df = pd.read_csv(keyword_file)
+        row, col = keyword_df.shape
+        promedio = 0.0
+
         col_formats = {'Competition': '.2%'}
         plot_df = keyword_df.reset_index()
         font_colours_df = pd.DataFrame(
             'black',  # Set default font colour
             index=plot_df.index, columns=plot_df.columns
         )
-                
-        colors = ['rgb(235, 222, 52)', 'rgb(235, 222, 52)', 'rgb(235, 222, 52)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)']
+        colors = []
+        colors = ['rgb(255, 255, 255)' for i in range(row)]
+    
+        for i in range(col):            
+            for j in range(row):
+                if j == 0 or j == 1 or j == 2 :
+                        colors[j] = 'rgb(252, 248, 3)'
+                if j + 1 < row :                    
+                    # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
+                    if i == 1 :
+                        promedio += float(keyword_df.iloc[j + 1, i])
         data = {}
-        for col in keyword_df.columns:
-            data[col] = keyword_df[col].to_numpy()
+        for col_name in keyword_df.columns:
+            data[col_name] = keyword_df[col_name].to_numpy()
         data['Color'] = colors
-        print(data)
         df = pd.DataFrame(data)
         fig = go.Figure(data=[go.Table(
                                 header=dict(
                                 values=[col for col in df if col != 'Color'],
                                 line_color='black', fill_color='white',
-                                align='center', font=dict(color='black', size=12)
+                                align='center', 
+                                font=dict(color='black', size=12)
                             ),
                             cells=dict(
                                 values=[df[col].values for col in df  if col != 'Color'],
@@ -148,14 +160,16 @@ def generate_pptx(prs):
                                 , align='center'
                                 , font=dict(color='black', size=11)
                             ))
-                        ])
+                        ],
+                        )
+        fig.update_layout(height=2000,
+                            margin={'t':1, 'b':1, 'r':1, 'l':1},
+                            autosize=True)
         #fig.show()
-        print("figura")
         fig.write_image('plot1.png')
        
 
 
-        row, col = keyword_df.shape
 
         shapes = prs.slides[8].shapes
         left = Inches(1.0)
@@ -165,12 +179,11 @@ def generate_pptx(prs):
 
 
         # table = shapes.add_table(row, col, left, top, width, height).table
-        promedio = 0.0
 
         # for i in range(col):
         #     table.columns[i].width = Inches(1.0)
         #     table.cell(0, i).text = encabezados[i]
-
+        print(col)
         for i in range(col):            
             for j in range(row):
                 if j + 1 < row :
@@ -220,7 +233,7 @@ etapas = st.file_uploader('CSV Etapas')
 intereses = st.file_uploader('CSV Intereses')
 generos = st.file_uploader('CSV Generos')
 
-keyword_file = st.file_uploader('Google Ads', accept)
+keyword_file = st.file_uploader('Google Ads')
 
 
 r = requests.get(
