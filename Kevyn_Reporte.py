@@ -220,7 +220,7 @@ etapas = st.file_uploader('CSV Etapas')
 intereses = st.file_uploader('CSV Intereses')
 generos = st.file_uploader('CSV Generos')
 
-keyword_file = st.file_uploader('Google Ads')
+keyword_file = st.file_uploader('Google Ads', accept)
 
 
 r = requests.get(
