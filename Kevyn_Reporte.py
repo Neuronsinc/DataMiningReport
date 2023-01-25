@@ -178,7 +178,6 @@ def generate_pptx(prs):
                     if i == 1 :
                         promedio += float(keyword_df.iloc[j + 1, i])
 
-        print('promedio-')
         print(promedio)
 
         shapes.add_picture('plot1.png', Inches(1), Inches(1))
