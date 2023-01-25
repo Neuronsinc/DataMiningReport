@@ -18,11 +18,22 @@ import requests
 from pptx.chart.data import CategoryChartData
 import dataframe_image as dfi
 import numpy as np
+import df2img
 
 def iter_cells(table):
     for row in table.rows:
         for cell in row.cells:
             yield cell
+
+def color_negative_red(value):
+ 
+
+
+    color = 'green'
+
+
+    return 'color: %s' % color
+
 
 def highlight(s):
     if s.duration < 3:
@@ -110,12 +121,20 @@ def generate_pptx(prs):
     for shape in prs.slides[8].shapes:
         print(shape.shape_type)
     if keyword_file is not None:
-        keyword_df = pd.read_csv(keyword_file, header=None)
+        keyword_df = pd.read_csv(keyword_file)
 
-        keyword_df.style.hide(axis = "index")
-        keyword_df.style.apply(highlight, axis=1)
+        fig = df2img.plot_dataframe(
+    keyword_df,
+     tbl_cells=dict(
+        align="right",
+        fill_color="green",
+        font_color="yellow",
+    ),
+    fig_size=(500, 140),
+)
+        df2img.save_dataframe(fig=fig, filename="plot1.png")
 
-        encabezados = keyword_df.iloc[0]
+
         
 
         row, col = keyword_df.shape
