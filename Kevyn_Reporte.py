@@ -129,7 +129,7 @@ def generate_pptx(prs):
         )
                 
         colors = ['rgb(239, 243, 255)', 'rgb(189, 215, 231)', 'rgb(107, 174, 214)']
-        data = {'Year' : [2010, 2011, 2012, 2013, 2014], 'Color' : colors}
+        data = {'Year' : [2010, 2011, 2012], 'Color' : colors}
         df = pd.DataFrame(data)
 
         fig = go.Figure(data=[go.Table(
@@ -190,14 +190,27 @@ def generate_pptx(prs):
         #     table.columns[i].width = Inches(1.0)
         #     table.cell(0, i).text = encabezados[i]
 
+        colores = []
+        colores = ['rgb(255, 255, 255)' for i in range(row-1)]
+        
+
         for i in range(col):            
             for j in range(row):
-                if j + 1 < row :
+                if j == 0 or j == 1 or j == 2 :
+                        colores[j] = 'rgb(252, 248, 3)'
+                if j + 1 < row :                    
                     # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
                     if i == 1 :
                         promedio += float(keyword_df.iloc[j + 1, i])
+                    
+                    # if i > 0 and i < 4 :
+                    #     colores.append ('rgb(235, 222, 52)')
+                    # else :
+                    #     colores.append ('rgb(255, 255, 255)')
 
-        print('promedio-')
+        print('colores')
+        print(colores)
+        print('promedio')
         print(promedio)
 
         dfi.export(keyword_df, 'tabla.png')
