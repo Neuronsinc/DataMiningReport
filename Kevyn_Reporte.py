@@ -21,29 +21,38 @@ import numpy as np
 import df2img
 import plotly.graph_objects as go
 
+
 def iter_cells(table):
     for row in table.rows:
         for cell in row.cells:
             yield cell
 
+
+def format_cpc_cells(n):
+    return f"USD {'{0:.2f}'.format(n)}"
+
+
+def format_cells(n):
+    return "{0:.2f}".format(n)
+
+
 def color_negative_red(value):
-    color = 'green'
-    return 'color: %s' % color
+    color = "green"
+    return "color: %s" % color
 
 
 def highlight(s):
     if s.duration < 3:
-        return ['background-color: yellow'] * len(s)
+        return ["background-color: yellow"] * len(s)
     else:
-        return ['background-color: red'] * len(s)
-
+        return ["background-color: red"] * len(s)
 
 
 # Funcion para generar archivo pptx
 def generate_pptx(prs):
     print("-------")
     for shape in prs.slides[6].shapes:
-        if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text == 'title':
+        if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text == "title":
             shape.text = ""
             frame2 = shape.text_frame.paragraphs[0]
             frame2.alignment = PP_ALIGN.CENTER
@@ -51,7 +60,7 @@ def generate_pptx(prs):
             run2.text = name
         if shape.shape_type == MSO_SHAPE_TYPE.CHART:
             chart_title = shape.chart.chart_title.text_frame.text
-            if chart_title == 'Género':
+            if chart_title == "Género":
                 genero_categories = []
                 genero_series = ()
                 if generos is not None:
@@ -59,12 +68,12 @@ def generate_pptx(prs):
                     genero_categories = generos_df.iloc[0].values[1:]
                     genero_series = generos_df.iloc[1].values[1:]
                     genero_sum = sum(map(int, genero_series))
-                    genero_series = [int(x) / genero_sum for x in genero_series]                         
+                    genero_series = [int(x) / genero_sum for x in genero_series]
                     chart_data = CategoryChartData()
                     chart_data.categories = genero_categories
-                    chart_data.add_series('Género', genero_series)       
+                    chart_data.add_series("Género", genero_series)
                     shape.chart.replace_data(chart_data)
-            if chart_title == 'Etapa familiar':
+            if chart_title == "Etapa familiar":
                 etapa_categories = []
                 etapa_series = ()
                 if etapas is not None:
@@ -72,12 +81,12 @@ def generate_pptx(prs):
                     etapa_categories = etapas_df.iloc[0].values[1:]
                     etapa_series = etapas_df.iloc[1].values[1:]
                     etapa_sum = sum(map(int, etapa_series))
-                    etapa_series = [int(x) / etapa_sum for x in etapa_series]                         
+                    etapa_series = [int(x) / etapa_sum for x in etapa_series]
                     chart_data = CategoryChartData()
                     chart_data.categories = etapa_categories
-                    chart_data.add_series('Etapa Familiar', etapa_series)       
+                    chart_data.add_series("Etapa Familiar", etapa_series)
                     shape.chart.replace_data(chart_data)
-            if chart_title == 'Edad':
+            if chart_title == "Edad":
                 edad_categories = []
                 edad_series = ()
                 if edades is not None:
@@ -85,12 +94,12 @@ def generate_pptx(prs):
                     edad_categories = df.iloc[:, 0].values[1:]
                     edad_series = df.iloc[:, 1].values[1:]
                     edad_sum = sum(map(int, edad_series))
-                    edad_series = [int(x) / edad_sum for x in edad_series]                         
+                    edad_series = [int(x) / edad_sum for x in edad_series]
                     chart_data = CategoryChartData()
                     chart_data.categories = edad_categories
-                    chart_data.add_series('Edad', edad_series)       
+                    chart_data.add_series("Edad", edad_series)
                     shape.chart.replace_data(chart_data)
-            if chart_title == 'Ocupaciones':
+            if chart_title == "Ocupaciones":
                 ocupacion_categories = []
                 ocupacion_series = ()
                 if ocupaciones is not None:
@@ -98,12 +107,14 @@ def generate_pptx(prs):
                     ocupacion_categories = ocupaciones_df.iloc[0].values[1:]
                     ocupacion_series = ocupaciones_df.iloc[1].values[1:]
                     ocupacion_sum = sum(map(int, ocupacion_series))
-                    ocupacion_series = [int(x) / ocupacion_sum for x in ocupacion_series]                         
+                    ocupacion_series = [
+                        int(x) / ocupacion_sum for x in ocupacion_series
+                    ]
                     chart_data = CategoryChartData()
                     chart_data.categories = ocupacion_categories
-                    chart_data.add_series('Ocupaciones', ocupacion_series)       
+                    chart_data.add_series("Ocupaciones", ocupacion_series)
                     shape.chart.replace_data(chart_data)
-            if chart_title == 'Intereses':
+            if chart_title == "Intereses":
                 interes_categories = []
                 interes_series = ()
                 if intereses is not None:
@@ -111,112 +122,117 @@ def generate_pptx(prs):
                     interes_categories = intereses_df.iloc[0].values[1:]
                     interes_series = intereses_df.iloc[1].values[1:]
                     interes_sum = sum(map(int, interes_series))
-                    interes_series = [int(x) / interes_sum for x in interes_series]                         
+                    interes_series = [int(x) / interes_sum for x in interes_series]
                     chart_data = CategoryChartData()
                     chart_data.categories = interes_categories
-                    chart_data.add_series('Intereses', interes_series)       
+                    chart_data.add_series("Intereses", interes_series)
                     shape.chart.replace_data(chart_data)
     for shape in prs.slides[8].shapes:
         print(shape.shape_type)
+    k = 0.1
+    for file in keyword_files:
+        if keyword_files is not None:
+            keyword_df = pd.read_csv(file)
+            row, col = keyword_df.shape
+            promedio = 0.0
 
-    if keyword_file is not None:
-        keyword_df = pd.read_csv(keyword_file)
-        row, col = keyword_df.shape
-        promedio = 0.0
+            col_formats = {"Competition": ".2%"}
+            plot_df = keyword_df.reset_index()
+            font_colours_df = pd.DataFrame(
+                "black",  # Set default font colour
+                index=plot_df.index,
+                columns=plot_df.columns,
+            )
+            colors = []
+            colors = ["rgb(255, 255, 255)" for i in range(row)]
 
-        col_formats = {'Competition': '.2%'}
-        plot_df = keyword_df.reset_index()
-        font_colours_df = pd.DataFrame(
-            'black',  # Set default font colour
-            index=plot_df.index, columns=plot_df.columns
-        )
-        colors = []
-        colors = ['rgb(255, 255, 255)' for i in range(row)]
-    
-        for i in range(col):            
-            for j in range(row):
-                if j == 0 or j == 1 or j == 2 :
-                        colors[j] = 'rgb(252, 248, 3)'
-                if j + 1 < row :                    
-                    # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
-                    if i == 1 :
-                        promedio += float(keyword_df.iloc[j + 1, i])
-        data = {}
-        for col_name in keyword_df.columns:
-            data[col_name] = keyword_df[col_name].to_numpy()
-        data['Color'] = colors
-        df = pd.DataFrame(data)
-        fig = go.Figure(data=[go.Table(
-                                header=dict(
-                                values=[col for col in df if col != 'Color'],
-                                line_color='black', fill_color='white',
-                                align='center', 
-                                font=dict(color='black', size=12)
-                            ),
-                            cells=dict(
-                                values=[df[col].values for col in df  if col != 'Color'],
-                                line_color=['rgb(0, 0, 0)'] * len(colors)
-                                , fill_color=[df.Color]
-                                , align='center'
-                                , font=dict(color='black', size=11)
-                            ))
-                        ],
-                        )
-        fig.update_layout(height=2000,
-                            margin={'t':1, 'b':1, 'r':1, 'l':1},
-                            autosize=True)
-        #fig.show()
-        fig.write_image('plot1.png')
-       
+            for i in range(col):
+                for j in range(row):
+                    if j == 0 or j == 1 or j == 2:
+                        colors[j] = "rgb(252, 248, 3)"
+                    if j + 1 < row:
+                        # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i])
+                        if i == 1:
+                            promedio += float(keyword_df.iloc[j + 1, i])
+            data = {}
+            for col_name in keyword_df.columns:
+                data[col_name] = keyword_df[col_name].to_numpy()
+            data["Color"] = colors
+            df = pd.DataFrame(data)
+            # for col_name in df.keys():
+            #   if 'CPC' in col_name:
+            #      df[col_name] = list(map(format_cpc_cells, df[col_name]))
+            # elif col_name.isnumeric():
+            #    df[col_name] = list(map(format_cells, df[col_name]))'''
 
+            fig = go.Figure(
+                data=[
+                    go.Table(
+                        columnwidth=[0.3, 0.1, 0.1, 0.1, 0.1],
+                        header=dict(
+                            values=[col for col in df if col != "Color"],
+                            line_color="black",
+                            fill_color="white",
+                            align="center",
+                            font=dict(color="black", size=12),
+                        ),
+                        cells=dict(
+                            values=[df[col].values for col in df if col != "Color"],
+                            line_color=["rgb(0, 0, 0)"] * len(colors),
+                            fill_color=[df.Color],
+                            align=["center"],
+                            font=dict(color="black", size=11),
+                        ),
+                    )
+                ],
+            )
+            fig.update_layout(
+                height=2000, margin={"t": 1, "b": 1, "r": 1, "l": 1}, width=600
+            )
+            # fig.show()
+            fig.write_image("plot1.png")
 
+            shapes = prs.slides[8].shapes
 
-        shapes = prs.slides[8].shapes
-        left = Inches(1.0)
-        top = Inches(1.0)
-        width = Inches(1.0)
-        height = Inches(1.0)
+            # table = shapes.add_table(row, col, left, top, width, height).table
 
+            # for i in range(col):
+            #     table.columns[i].width = Inches(1.0)
+            #     table.cell(0, i).text = encabezados[i]
+            print(col)
+            for i in range(col):
+                for j in range(row):
+                    if j + 1 < row:
+                        # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i])
+                        if i == 1:
+                            promedio += float(keyword_df.iloc[j + 1, i])
 
-        # table = shapes.add_table(row, col, left, top, width, height).table
+            print(promedio)
 
-        # for i in range(col):
-        #     table.columns[i].width = Inches(1.0)
-        #     table.cell(0, i).text = encabezados[i]
-        print(col)
-        for i in range(col):            
-            for j in range(row):
-                if j + 1 < row :
-                    # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
-                    if i == 1 :
-                        promedio += float(keyword_df.iloc[j + 1, i])
+            shapes.add_picture("plot1.png", Inches(k), Inches(1))
+            k += 6
+    # row col
+    # set column widths
+    # table.columns[0].width = Inches(1.0)
+    # table.columns[1].width = Inches(1.0)
+    # table.columns[2].width = Inches(1.0)
+    # table.columns[3].width = Inches(1.0)
+    # table.columns[4].width = Inches(1.0)
 
-        print(promedio)
+    # write column headings
+    # table.cell(0, 0).text = 'Keyword'
+    # table.cell(0, 1).text = 'Búsqueda Promedio'
+    # table.cell(0, 2).text = 'Impresiones'
+    # table.cell(0, 3).text = 'Competencia'
+    # table.cell(0, 4).text = 'CPC Promedio'
 
-        shapes.add_picture('plot1.png', Inches(1), Inches(1))
-#row col
-        # set column widths
-        # table.columns[0].width = Inches(1.0)
-        # table.columns[1].width = Inches(1.0)
-        # table.columns[2].width = Inches(1.0)
-        # table.columns[3].width = Inches(1.0)
-        # table.columns[4].width = Inches(1.0)
-
-
-        # write column headings
-        # table.cell(0, 0).text = 'Keyword'
-        # table.cell(0, 1).text = 'Búsqueda Promedio'
-        # table.cell(0, 2).text = 'Impresiones'
-        # table.cell(0, 3).text = 'Competencia'
-        # table.cell(0, 4).text = 'CPC Promedio'
-
-        # write body cells
-        # table.cell(1, 0).text = 'Baz'
-        # table.cell(1, 1).text = 'Qux'
-        # for cell in iter_cells(table):
-        #     for paragraph in cell.text_frame.paragraphs:
-        #         for run in paragraph.runs:
-        #             run.font.size = Pt(1)
+    # write body cells
+    # table.cell(1, 0).text = 'Baz'
+    # table.cell(1, 1).text = 'Qux'
+    # for cell in iter_cells(table):
+    #     for paragraph in cell.text_frame.paragraphs:
+    #         for run in paragraph.runs:
+    #             run.font.size = Pt(1)
     binary_output = BytesIO()
     prs.save(binary_output)
     return binary_output.getvalue()
@@ -225,22 +241,21 @@ def generate_pptx(prs):
 st.set_page_config(layout="wide")
 st.title("Reporte")
 
-name = st.text_input(label="Nombre del proyecto", key='name')
+name = st.text_input(label="Nombre del proyecto", key="name")
 
-edades = st.file_uploader('CSV Edades')
-ocupaciones = st.file_uploader('CSV Ocupaciones')
-etapas = st.file_uploader('CSV Etapas')
-intereses = st.file_uploader('CSV Intereses')
-generos = st.file_uploader('CSV Generos')
+edades = st.file_uploader("CSV Edades")
+ocupaciones = st.file_uploader("CSV Ocupaciones")
+etapas = st.file_uploader("CSV Etapas")
+intereses = st.file_uploader("CSV Intereses")
+generos = st.file_uploader("CSV Generos")
 
-keyword_file = st.file_uploader('Google Ads')
+keyword_files = st.file_uploader("Google Ads", accept_multiple_files=True)
 
 
 r = requests.get(
-        "https://github.com/Neuronsinc/DataMiningReport/blob/main/template.pptx?raw=true"
-    )
+    "https://github.com/Neuronsinc/DataMiningReport/blob/main/template.pptx?raw=true"
+)
 prs = Presentation(io.BytesIO(r.content))
-
 
 
 st.download_button(
