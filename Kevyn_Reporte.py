@@ -5,7 +5,7 @@ import io
 from pptx.util import Inches
 import math
 import csv
-import pandas
+import pandas as pd
 import streamlit as st
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
@@ -16,12 +16,19 @@ from pptx.enum.text import PP_ALIGN
 from pptx.util import Pt
 import requests
 from pptx.chart.data import CategoryChartData
-
+import dataframe_image as dfi
+import numpy as np
 
 def iter_cells(table):
     for row in table.rows:
         for cell in row.cells:
             yield cell
+
+def highlight(s):
+    if s.duration < 3:
+        return ['background-color: yellow'] * len(s)
+    else:
+        return ['background-color: red'] * len(s)
 
 # Funcion para generar archivo pptx
 def generate_pptx(prs):
@@ -39,7 +46,7 @@ def generate_pptx(prs):
                 genero_categories = []
                 genero_series = ()
                 if generos is not None:
-                    generos_df = pandas.read_csv(generos, header=None)
+                    generos_df = pd.read_csv(generos, header=None)
                     genero_categories = generos_df.iloc[0].values[1:]
                     genero_series = generos_df.iloc[1].values[1:]
                     genero_sum = sum(map(int, genero_series))
@@ -52,7 +59,7 @@ def generate_pptx(prs):
                 etapa_categories = []
                 etapa_series = ()
                 if etapas is not None:
-                    etapas_df = pandas.read_csv(etapas, header=None)
+                    etapas_df = pd.read_csv(etapas, header=None)
                     etapa_categories = etapas_df.iloc[0].values[1:]
                     etapa_series = etapas_df.iloc[1].values[1:]
                     etapa_sum = sum(map(int, etapa_series))
@@ -65,7 +72,7 @@ def generate_pptx(prs):
                 edad_categories = []
                 edad_series = ()
                 if edades is not None:
-                    df = pandas.read_csv(edades, header=None)
+                    df = pd.read_csv(edades, header=None)
                     edad_categories = df.iloc[:, 0].values[1:]
                     edad_series = df.iloc[:, 1].values[1:]
                     edad_sum = sum(map(int, edad_series))
@@ -78,7 +85,7 @@ def generate_pptx(prs):
                 ocupacion_categories = []
                 ocupacion_series = ()
                 if ocupaciones is not None:
-                    ocupaciones_df = pandas.read_csv(ocupaciones, header=None)
+                    ocupaciones_df = pd.read_csv(ocupaciones, header=None)
                     ocupacion_categories = ocupaciones_df.iloc[0].values[1:]
                     ocupacion_series = ocupaciones_df.iloc[1].values[1:]
                     ocupacion_sum = sum(map(int, ocupacion_series))
@@ -91,7 +98,7 @@ def generate_pptx(prs):
                 interes_categories = []
                 interes_series = ()
                 if intereses is not None:
-                    intereses_df = pandas.read_csv(intereses, header=None)
+                    intereses_df = pd.read_csv(intereses, header=None)
                     interes_categories = intereses_df.iloc[0].values[1:]
                     interes_series = intereses_df.iloc[1].values[1:]
                     interes_sum = sum(map(int, interes_series))
@@ -103,8 +110,13 @@ def generate_pptx(prs):
     for shape in prs.slides[8].shapes:
         print(shape.shape_type)
     if keyword_file is not None:
-        keyword_df = pandas.read_csv(keyword_file, header=None)
+        keyword_df = pd.read_csv(keyword_file, header=None)
+
+        keyword_df.style.hide(axis = "index")
+        keyword_df.style.apply(highlight, axis=1)
+
         encabezados = keyword_df.iloc[0]
+        
 
         row, col = keyword_df.shape
 
@@ -115,22 +127,25 @@ def generate_pptx(prs):
         height = Inches(1.0)
 
 
-        table = shapes.add_table(row, col, left, top, width, height).table
+        # table = shapes.add_table(row, col, left, top, width, height).table
         promedio = 0.0
 
-        for i in range(col):
-            table.columns[i].width = Inches(1.0)
-            table.cell(0, i).text = encabezados[i]
+        # for i in range(col):
+        #     table.columns[i].width = Inches(1.0)
+        #     table.cell(0, i).text = encabezados[i]
 
         for i in range(col):            
             for j in range(row):
                 if j + 1 < row :
-                    table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
+                    # table.cell(j + 1, i).text = str(keyword_df.iloc[j + 1, i]) 
                     if i == 1 :
                         promedio += float(keyword_df.iloc[j + 1, i])
 
-        print('promedio')
+        print('promedio-')
         print(promedio)
+
+        dfi.export(keyword_df, 'tabla.png')
+        shapes.add_picture('tabla.png', Inches(1), Inches(1))
 #row col
         # set column widths
         # table.columns[0].width = Inches(1.0)
