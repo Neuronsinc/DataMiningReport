@@ -148,30 +148,8 @@ def generate_pptx(prs):
                         ])
         #fig.show()  
         print("figura")
-        st.plotly_chart(fig)
-        fig.write_image('pruebita.png')
-        # fig = df2img.plot_dataframe(
-        #                         keyword_df,
-        #                         print_index=False,  # Hide new index (old index now column)
-        #                         tbl_cells={
-        #                                 'format': [
-        #                                     # Conditionally build a complete list of foramt strings
-        #                                     #  Based on col_formats dict and columns
-        #                                     col_formats[c] if c in col_formats else None
-        #                                     for c in plot_df.columns
-        #                                 ],
-        #                                 'font': {
-        #                                     # Needs Transposed for colours to go to the correct cells
-        #                                     'color': font_colours_df.T
-        #                                 }
-        #                             },
-        #                         row_fill_color=["#ffffff", "#aaaaaa", "#aaaaaa", "#ffffff", "#d7e4d6", "#a3a4d6"],
-        #                         fig_size=(500, 500),                                    
-        #                     )
-                            
-        # df2img.save_dataframe(fig=fig, filename="plot1.png")        
-
-
+        fig.write_image('plot1.png')
+       
 
 
         row, col = keyword_df.shape
@@ -213,8 +191,7 @@ def generate_pptx(prs):
         print('promedio')
         print(promedio)
 
-        dfi.export(keyword_df, 'tabla.png')
-        shapes.add_picture('tabla.png', Inches(1), Inches(1))
+        shapes.add_picture('plot1.png', Inches(1), Inches(1))
 #row col
         # set column widths
         # table.columns[0].width = Inches(1.0)
