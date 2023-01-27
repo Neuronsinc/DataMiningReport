@@ -219,10 +219,12 @@ def generate_pptx(prs):
 
 # cell is a table cell
         # set fill type to solid color first
-        table2.cell(0, 0).fill.solid()
-
-        # set foreground (fill) color to a specific RGB color
-        table2.cell(0, 0).fill.fore_color.rgb = RGBColor(0xFB, 0x8F, 0x00)
+        for i in range(2):
+            for j in range(len(keyword_files)+1):
+                if j != 0:
+                    print(i, j)
+                    table2.cell(j, i).fill.solid()
+                    table2.cell(j, i).fill.fore_color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
         table2.columns[0].width = Inches(3.0)
         table2.columns[1].width = Inches(3.0)
         table2.cell(0, 0).text = 'Categoria'
