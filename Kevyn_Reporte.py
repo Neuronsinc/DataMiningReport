@@ -187,6 +187,14 @@ def generate_pptx(prs):
             fig.write_image("plot1.png")
 
             shapes = prs.slides[8].shapes
+            for shape in prs.slides[8].shapes:
+                for i in range(len(keyword_files)):
+                    if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text == f"title{i}":
+                        shape.text = ""
+                        frame2 = shape.text_frame.paragraphs[0]
+                        frame2.alignment = PP_ALIGN.CENTER
+                        run2 = frame2.add_run()
+                        run2.text = dataTableName[i]
 
             # table = shapes.add_table(row, col, left, top, width, height).table
 
