@@ -150,6 +150,7 @@ def generate_pptx(prs):
                         promedio += float(keyword_df.iloc[j, i])
 
             dataTableName.append(os.path.splitext(file.name)[0])
+            print(dataTableName)
             dataTableAverage.append(str(round((promedio/row), 2)))
             data = {}
             for col_name in keyword_df.columns:
@@ -157,7 +158,6 @@ def generate_pptx(prs):
             data["Color"] = colors
             df = pd.DataFrame(data)
             df.fillna('', inplace=True)
-            print(df)
 
             fig = go.Figure(
                 data=[
@@ -187,14 +187,8 @@ def generate_pptx(prs):
             fig.write_image("plot1.png")
 
             shapes = prs.slides[8].shapes
-            for shape in prs.slides[8].shapes:
-                for i in range(len(keyword_files)):
-                    if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text == f"title{i}":
-                        shape.text = ""
-                        frame2 = shape.text_frame.paragraphs[0]
-                        frame2.alignment = PP_ALIGN.CENTER
-                        run2 = frame2.add_run()
-                        run2.text = dataTableName[i]
+            
+
 
             # table = shapes.add_table(row, col, left, top, width, height).table
 
@@ -237,7 +231,15 @@ def generate_pptx(prs):
             table2.cell(posInicio,0).text = dataTableName[i]
             table2.cell(posInicio,1).text = dataTableAverage[i]
             posInicio += 1
-
+        for shape in prs.slides[8].shapes:
+                for i in range(1,len(keyword_files)+1):
+                    print(i)
+                    if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text.strip() == f"title{i}":
+                        shape.text = ""
+                        frame2 = shape.text_frame.paragraphs[0]
+                        frame2.alignment = PP_ALIGN.CENTER
+                        run2 = frame2.add_run()
+                        run2.text = dataTableName[i-1]
     # row col
     # set column widths
     # table.columns[0].width = Inches(1.0)
