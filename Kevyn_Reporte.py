@@ -1,5 +1,6 @@
 from io import BytesIO
 import io
+from math import isnan
 import os
 from pptx.util import Inches
 import pandas as pd
@@ -155,11 +156,8 @@ def generate_pptx(prs):
                 data[col_name] = keyword_df[col_name].to_numpy()
             data["Color"] = colors
             df = pd.DataFrame(data)
-            # for col_name in df.keys():
-            #   if 'CPC' in col_name:
-            #      df[col_name] = list(map(format_cpc_cells, df[col_name]))
-            # elif col_name.isnumeric():
-            #    df[col_name] = list(map(format_cells, df[col_name]))
+            df.fillna('', inplace=True)
+            print(df)
 
             fig = go.Figure(
                 data=[
