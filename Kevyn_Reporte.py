@@ -11,6 +11,7 @@ import requests
 from pptx.chart.data import CategoryChartData
 import plotly.graph_objects as go
 
+from pptx.dml.color import RGBColor
 
 def iter_cells(table):
     for row in table.rows:
@@ -158,7 +159,7 @@ def generate_pptx(prs):
             #   if 'CPC' in col_name:
             #      df[col_name] = list(map(format_cpc_cells, df[col_name]))
             # elif col_name.isnumeric():
-            #    df[col_name] = list(map(format_cells, df[col_name]))'''
+            #    df[col_name] = list(map(format_cells, df[col_name]))
 
             fig = go.Figure(
                 data=[
@@ -211,12 +212,19 @@ def generate_pptx(prs):
         posInicio = 1
         shapes2 = prs.slides[7].shapes
         left = Inches(1.0)
-        top = Inches(1.0)
+        top = Inches(4.0)
         width = Inches(5.0)
         height = Inches(2.0)
         table2 = shapes2.add_table(len(keyword_files)+1, 2, left, top, width, height).table
-        table2.columns[0].width = Inches(1.0)
-        table2.columns[1].width = Inches(1.0)
+
+# cell is a table cell
+        # set fill type to solid color first
+        table2.cell(0, 0).fill.solid()
+
+        # set foreground (fill) color to a specific RGB color
+        table2.cell(0, 0).fill.fore_color.rgb = RGBColor(0xFB, 0x8F, 0x00)
+        table2.columns[0].width = Inches(3.0)
+        table2.columns[1].width = Inches(3.0)
         table2.cell(0, 0).text = 'Categoria'
         table2.cell(0, 1).text = 'Busqueda mensual promedio'
         for i in range(len(keyword_files)):
