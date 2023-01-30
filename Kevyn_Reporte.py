@@ -151,7 +151,6 @@ def generate_pptx(prs):
                         promedio += float(keyword_df.iloc[j, i])
 
             dataTableName.append(os.path.splitext(file.name)[0])
-            print(dataTableName)
             dataTableAverage.append(str(round((promedio/row), 2)))
             indexpd.append(indexC)
             data = {}
