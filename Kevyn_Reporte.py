@@ -41,6 +41,50 @@ def highlight(s):
 # Funcion para generar archivo pptx
 def generate_pptx(prs):
     print("-------")
+    if facebook_csv is not None:
+        fb_df = pd.read_csv(facebook_csv, header=None, sep=';', encoding = "ISO-8859-1")
+        edad_sexo_df = fb_df.iloc[5:12, 0:3]
+        edad_sexo_row, edad_sexo_col = edad_sexo_df.shape
+        for i in range(edad_sexo_row):
+            for j in range(edad_sexo_col):
+                if '%' in edad_sexo_df.iloc[i,j]:
+                    edad_sexo_df.iloc[i,j] = float(edad_sexo_df.iloc[i,j].rstrip('%').replace(',', '.')) / 100
+        hombre_count = sum(edad_sexo_df.iloc[1:7,2])
+        mujer_count = sum(edad_sexo_df.iloc[1:7,1])
+        hombre_series = edad_sexo_df.iloc[1:7, 2].values
+        mujer_series =  edad_sexo_df.iloc[1:7, 1].values
+        edad_sexo_categories = edad_sexo_df.iloc[1:7, 0].values
+        print(edad_sexo_categories)
+        pagina_df = fb_df.iloc[14:25, 0:2]
+        pagina_row, pagina_col = pagina_df.shape
+        for i in range(pagina_row):
+            for j in range(pagina_col):
+                if '%' in pagina_df.iloc[i,j]:
+                    pagina_df.iloc[i,j] = float(pagina_df.iloc[i,j].rstrip('%').replace(',', '.')) / 100
+        pagina_categories = pagina_df.iloc[1:11, 0].values
+        pagina_series = pagina_df.iloc[1:11, 1].values
+        for shape in prs.slides[9].shapes:
+            if shape.shape_type == MSO_SHAPE_TYPE.CHART:
+                chart_title = shape.chart.chart_title.text_frame.text                        
+                if 'Edad' in chart_title:
+                        chart_data = CategoryChartData()
+                        chart_data.categories = edad_sexo_categories
+                        chart_data.add_series("Hombre", hombre_series)
+                        chart_data.add_series("Mujer", mujer_series)
+                        shape.chart.replace_data(chart_data)
+                if 'Principales' in chart_title:
+                        chart_data = CategoryChartData()
+                        chart_data.categories = pagina_categories
+                        chart_data.add_series("Paginas", pagina_series)
+                        shape.chart.replace_data(chart_data)
+                if chart_title == "Género":
+                    if generos is not None:
+                        chart_data = CategoryChartData()
+                        chart_data.categories = ['Hombre', 'Mujer']
+                        chart_data.add_series("Género", [hombre_count, mujer_count])
+                        shape.chart.replace_data(chart_data)
+
+
     for shape in prs.slides[6].shapes:
         if shape.shape_type == MSO_SHAPE_TYPE.TEXT_BOX and shape.text == "title":
             shape.text = ""
@@ -117,6 +161,7 @@ def generate_pptx(prs):
                     chart_data.categories = interes_categories
                     chart_data.add_series("Intereses", interes_series)
                     shape.chart.replace_data(chart_data)
+    
     # for shape in prs.slides[8].shapes:
     #     print(shape.shape_type)
     k = 0.1
@@ -182,7 +227,7 @@ def generate_pptx(prs):
                 ],
             )
             fig.update_layout(
-                height=2000, margin={"t": 1, "b": 1, "r": 1, "l": 1}, width=600
+                height=800, margin={"t": 1, "b": 1, "r": 1, "l": 1}, width=600
             )
             # fig.show()
             fig.write_image("plot1.png")
@@ -315,6 +360,8 @@ intereses = st.file_uploader("CSV Intereses")
 generos = st.file_uploader("CSV Generos")
 
 keyword_files = st.file_uploader("Google Ads", accept_multiple_files=True)
+
+facebook_csv = st.file_uploader("Facebook CSV")
 
 
 r = requests.get(
