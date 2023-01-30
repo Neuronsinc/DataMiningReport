@@ -11,8 +11,6 @@ import requests
 from pptx.chart.data import CategoryChartData
 import plotly.graph_objects as go
 
-from pptx.dml.color import RGBColor
-
 def iter_cells(table):
     for row in table.rows:
         for cell in row.cells:
@@ -121,9 +119,12 @@ def generate_pptx(prs):
     # for shape in prs.slides[8].shapes:
     #     print(shape.shape_type)
     k = 0.1
+    indexpd = []
+    indexC = -1
     dataTableName = []
     dataTableAverage = []
     for file in keyword_files:
+        indexC += 1
         if keyword_files is not None:
             keyword_df = pd.read_csv(file)           
             row, col = keyword_df.shape
@@ -150,6 +151,7 @@ def generate_pptx(prs):
 
             dataTableName.append(os.path.splitext(file.name)[0])
             dataTableAverage.append(str(round((promedio/row), 2)))
+            indexpd.append(indexC)
             data = {}
             for col_name in keyword_df.columns:
                 data[col_name] = keyword_df[col_name].to_numpy()
@@ -208,29 +210,72 @@ def generate_pptx(prs):
             shapes.add_picture("plot1.png", Inches(k), Inches(1))
             k += 6  
 
+        
+        # data2 = {}
+    colors2 = []
+    colors2 = ["rgb(255, 255, 255)" for i in range(indexC+1)]
+
+    ex_dict = {
+        'Categoria': dataTableName,
+        'Búsqueda mensual promedio': dataTableAverage,
+        'Color': colors2 
+    }
+    df2 = pd.DataFrame(ex_dict, columns=['Categoria','Búsqueda mensual promedio', 'Color'], index=indexpd)
+    
+    
     if len(keyword_files) > 0 :
-        posInicio = 1
-        shapes2 = prs.slides[7].shapes
-        left = Inches(1.0)
-        top = Inches(4.0)
-        width = Inches(5.0)
-        height = Inches(2.0)
-        table2 = shapes2.add_table(len(keyword_files)+1, 2, left, top, width, height).table
+        fig2 = go.Figure(
+                data=[
+                    go.Table(
+                        columnwidth=[0.3, 0.1, 0.1, 0.1, 0.1],
+                        header=dict(
+                            values=['Categoria','Búsqueda mensual promedio'],
+                            line_color="black",
+                            fill_color="white",
+                            align="center",
+                            font=dict(color="black", size=12),
+                        ),
+                        cells=dict(
+                            values=[df2[col].values for col in df2 if col != "Color"],
+                            line_color=["rgb(0, 0, 0)"] * len(colors2),
+                            fill_color=[df2.Color],
+                            align=["center"],
+                            font=dict(color="black", size=11),
+                        ),
+                    )
+                ],
+            )
+        fig2.update_layout(
+            height=300, margin={"t": 1, "b": 1, "r": 1, "l": 1}, width=400
+        )
+            # fig.show()
+        fig2.write_image("plot2.png")
 
-# cell is a table cell
-        # set fill type to solid color first
-        table2.cell(0, 0).fill.solid()
+        shapes = prs.slides[7].shapes
+        shapes.add_picture("plot2.png", Inches(1), Inches(3))
 
-        # set foreground (fill) color to a specific RGB color
-        table2.cell(0, 0).fill.fore_color.rgb = RGBColor(0xFB, 0x8F, 0x00)
-        table2.columns[0].width = Inches(3.0)
-        table2.columns[1].width = Inches(3.0)
-        table2.cell(0, 0).text = 'Categoria'
-        table2.cell(0, 1).text = 'Busqueda mensual promedio'
-        for i in range(len(keyword_files)):
-            table2.cell(posInicio,0).text = dataTableName[i]
-            table2.cell(posInicio,1).text = dataTableAverage[i]
-            posInicio += 1
+        # posInicio = 1
+        # shapes2 = prs.slides[7].shapes
+        # left = Inches(1.0)
+        # top = Inches(4.0)
+        # width = Inches(5.0)
+        # height = Inches(2.0)
+        # table2 = shapes2.add_table(len(keyword_files)+1, 2, left, top, width, height).table
+
+        # # cell is a table cell
+        # # set fill type to solid color first
+        # table2.cell(0, 0).fill.solid()
+
+        # # set foreground (fill) color to a specific RGB color
+        # table2.cell(0, 0).fill.fore_color.rgb = RGBColor(0xFB, 0x8F, 0x00)
+        # table2.columns[0].width = Inches(3.0)
+        # table2.columns[1].width = Inches(3.0)
+        # table2.cell(0, 0).text = 'Categoria'
+        # table2.cell(0, 1).text = 'Busqueda mensual promedio'
+        # for i in range(len(keyword_files)):
+        #     table2.cell(posInicio,0).text = dataTableName[i]
+        #     table2.cell(posInicio,1).text = dataTableAverage[i]
+        #     posInicio += 1
 
     # row col
     # set column widths
@@ -254,10 +299,6 @@ def generate_pptx(prs):
     #     for paragraph in cell.text_frame.paragraphs:
     #         for run in paragraph.runs:
     #             run.font.size = Pt(1)
-
-    
-
-
     binary_output = BytesIO()
     prs.save(binary_output)
     return binary_output.getvalue()
