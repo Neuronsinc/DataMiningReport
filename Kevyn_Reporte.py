@@ -43,7 +43,7 @@ def highlight(s):
 def generate_pptx(prs):
     print("-------")
     if facebook_csv is not None:
-        fb_df = pd.read_csv(facebook_csv, header=None, sep=';', encoding = "ISO-8859-1")
+        fb_df = pd.read_csv(facebook_csv, header=None, sep=None, encoding = "ISO-8859-1")
         edad_sexo_start_row, edad_sexo_start_col = np.where(fb_df == "Edad y sexo")    
         edad_sexo_start_col = edad_sexo_start_col[0]
         edad_sexo_start_row = edad_sexo_start_row[0] + 1
@@ -179,7 +179,7 @@ def generate_pptx(prs):
     for file in keyword_files:
         indexC += 1
         if keyword_files is not None:
-            keyword_df = pd.read_csv(file, sep=';', encoding = "ISO-8859-1")           
+            keyword_df = pd.read_csv(file, sep=None, encoding = "ISO-8859-1")           
             row, col = keyword_df.shape
             promedio = 0.0
 
