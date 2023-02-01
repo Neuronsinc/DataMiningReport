@@ -2,6 +2,7 @@ from io import BytesIO
 import io
 from math import isnan
 import os
+import numpy as np
 from pptx.util import Inches
 import pandas as pd
 import streamlit as st
@@ -43,7 +44,10 @@ def generate_pptx(prs):
     print("-------")
     if facebook_csv is not None:
         fb_df = pd.read_csv(facebook_csv, header=None, sep=';', encoding = "ISO-8859-1")
-        edad_sexo_df = fb_df.iloc[5:12, 0:3]
+        edad_sexo_start_row, edad_sexo_start_col = np.where(fb_df == "Edad y sexo")    
+        edad_sexo_start_col = edad_sexo_start_col[0]
+        edad_sexo_start_row = edad_sexo_start_row[0] + 1
+        edad_sexo_df = fb_df.iloc[edad_sexo_start_row:edad_sexo_start_row+7, edad_sexo_start_col:edad_sexo_start_col+3]
         edad_sexo_row, edad_sexo_col = edad_sexo_df.shape
         for i in range(edad_sexo_row):
             for j in range(edad_sexo_col):
@@ -54,9 +58,12 @@ def generate_pptx(prs):
         hombre_series = edad_sexo_df.iloc[1:7, 2].values
         mujer_series =  edad_sexo_df.iloc[1:7, 1].values
         edad_sexo_categories = edad_sexo_df.iloc[1:7, 0].values
-        print(edad_sexo_categories)
-        pagina_df = fb_df.iloc[14:25, 0:2]
+        pagina_start_row, pagina_start_col = np.where(fb_df == 'Principales páginas')
+        pagina_start_col = pagina_start_col[0]
+        pagina_start_row = pagina_start_row[0] + 1
+        pagina_df = fb_df.iloc[pagina_start_row:pagina_start_row+11, pagina_start_col:pagina_start_col+2]
         pagina_row, pagina_col = pagina_df.shape
+        print(pagina_df)
         for i in range(pagina_row):
             for j in range(pagina_col):
                 if '%' in pagina_df.iloc[i,j]:
