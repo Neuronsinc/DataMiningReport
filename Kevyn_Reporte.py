@@ -172,7 +172,7 @@ def generate_pptx(prs):
     for file in keyword_files:
         indexC += 1
         if keyword_files is not None:
-            keyword_df = pd.read_csv(file)           
+            keyword_df = pd.read_csv(file, sep=';', encoding = "ISO-8859-1")           
             row, col = keyword_df.shape
             promedio = 0.0
 
